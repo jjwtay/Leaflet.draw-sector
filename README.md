@@ -1,5 +1,5 @@
 # Leaflet.draw-sector (Work in progress)
-Leaflet Draw support for leaflet.sector inspired by [Leaflet.ellipse](https://github.com/haleystorm/Leaflet.draw-ellipse).
+Leaflet Draw support for leaflet.sector inspired by [Leaflet.ellipse](https://github.com/haleystorm/Leaflet.draw-ellipse). Checkout the [Demo](https://jjwtay.github.io/Leaflet.draw-sector/)
 
 # Important
 Leaflet.draw-sector requires 
