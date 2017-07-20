@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Leaflet Draw</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+
+        crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css" crossorigin=""/>
+
+    <!--
+	<link rel="stylesheet" href="../Leaflet.draw/dist/leaflet.draw.css" />
+	<link rel="stylesheet" href="../dist/leaflet.draw-ellipse.css" />-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton@2.0.0/src/easy-button.css">
+
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js" crossorigin=""></script>
+	<script src="https://unpkg.com/leaflet-easybutton@2.0.0/src/easy-button.js"></script>
+    <script src="./example/leaflet.draw-src.js"></script>
+    <script src="./example/L.Box.js"></script>
+	<script src="./Leaflet.draw-box.js"></script>
+    
+</head>
+
+<body>
+	<div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+
+	<script>
+		var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			osm = L.tileLayer(osmUrl, {
+				maxZoom: 18,
+				attribution: osmAttrib
+			}),
+			map = new L.Map('map', {
+				layers: [osm],
+				center: new L.LatLng(-37.7772, 175.2756),
+				zoom: 15,
+
+			})
+        
+        L.easyButton( '<span class="diamnd">&diams;</span>', function(){
+            let options = {
+                shapeOptions: {
+                    createShape: true,
+                    color: 'rgb(255,255,0)',
+                    width: 2,
+                    fill: false
+                }
+            }
+            new L.Draw.Box(map, options).enable()
+        }).addTo(map)
+
+        map.on('draw:created', e => {
+            let newBox = L.box({
+                center: e.layer.getCenter(),
+                width: e.layer.getWidth(),
+                length: e.layer.getLength(),
+                bearing: e.layer.getBearing(),
+                //Style options anything valid for L.polygon
+                color: 'rgb(255,255,0)'
+            }).on('dblclick', e => {
+                L.DomEvent.stop(e)
+
+                if (newBox.editing.enabled()) {
+                    newBox.editing.disable()
+                } else {
+                    newBox.editing.enable()
+                }               
+            })
+            
+            newBox.editing.enable()
+
+            map.addLayer(newBox)
+        })
+
+        let box1 = L.box({
+            center: [-37.7772, 175.2756],
+            width: 1000,
+            length: 500,
+            bearing: 45
+        }).on('dblclick', e => {
+            L.DomEvent.stop(e)
+            if (box1.editing.enabled()) {
+                box1.editing.disable()
+            } else {
+                box1.editing.enable()
+            }
+        })
+        map.addLayer(box1)
+	</script>
+</body>
+
+</html>
