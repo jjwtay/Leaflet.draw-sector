@@ -11,3 +11,18 @@ Leaflet.draw-sector requires
 ## Usage
 
 See [Leaflet.draw](https://github.com/Leaflet/Leaflet.draw#using) and [leaflet.sector](https://github.com/jjwtay/leaflet.sector).
+
+## Checkout
+
+
+[leaflet.arc](https://github.com/jjwtay/leaflet.arc) - Leaflet Arc drawing.
+
+[leaflet.draw-arc](https://github.com/jjwtay/leaflet.draw-arc) - Leaflet Draw support for leaflet.arc.
+
+[leaflet.box](https://github.com/jjwtay/leaflet.box) - Leaflet Box(rotatable rectangle) drawing.
+
+[leaflet.draw-box](https://github.com/jjwtay/leaflet.draw-box) - Leaflet Draw support for leaflet.box.
+
+## License
+
+This code is provided under the Apache 2.0 license.
