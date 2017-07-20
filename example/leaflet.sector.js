@@ -36,7 +36,7 @@ var objectWithoutProperties = function (obj, keys) {
   return target;
 };
 
-L.Arc = L.Polyline.extend({
+L.Sector = L.Polygon.extend({
     options: {
         weight: 5,
         color: '#ffff00',
@@ -46,17 +46,19 @@ L.Arc = L.Polyline.extend({
     initialize: function initialize(_ref) {
         var _ref$center = _ref.center,
             center = _ref$center === undefined ? [0, 0] : _ref$center,
-            _ref$radius = _ref.radius,
-            radius = _ref$radius === undefined ? 100 : _ref$radius,
+            _ref$innerRadius = _ref.innerRadius,
+            innerRadius = _ref$innerRadius === undefined ? 100 : _ref$innerRadius,
+            _ref$outerRadius = _ref.outerRadius,
+            outerRadius = _ref$outerRadius === undefined ? 100 : _ref$outerRadius,
             _ref$startBearing = _ref.startBearing,
             startBearing = _ref$startBearing === undefined ? 0 : _ref$startBearing,
             _ref$endBearing = _ref.endBearing,
             endBearing = _ref$endBearing === undefined ? 90 : _ref$endBearing,
             _ref$numberOfPoints = _ref.numberOfPoints,
             numberOfPoints = _ref$numberOfPoints === undefined ? 32 : _ref$numberOfPoints,
-            options = objectWithoutProperties(_ref, ['center', 'radius', 'startBearing', 'endBearing', 'numberOfPoints']);
+            options = objectWithoutProperties(_ref, ['center', 'innerRadius', 'outerRadius', 'startBearing', 'endBearing', 'numberOfPoints']);
 
-        this.setOptions(options).setCenter(center).setRadius(radius).setStartBearing(startBearing).setEndBearing(endBearing).setNumberOfPoints(numberOfPoints);
+        this.setOptions(options).setCenter(center).setInnerRadius(innerRadius).setOuterRadius(outerRadius).setStartBearing(startBearing).setEndBearing(endBearing).setNumberOfPoints(numberOfPoints);
 
         this._setLatLngs(this.getLatLngs());
     },
@@ -70,14 +72,25 @@ L.Arc = L.Polyline.extend({
         return this.redraw();
     },
 
-    getRadius: function getRadius() {
-        return this._radius;
+    getInnerRadius: function getInnerRadius() {
+        return this._innerRadius;
     },
 
-    setRadius: function setRadius() {
+    setInnerRadius: function setInnerRadius() {
         var radius = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
 
-        this._radius = Math.abs(radius);
+        this._innerRadius = Math.abs(radius);
+        return this.redraw();
+    },
+
+    getOuterRadius: function getOuterRadius() {
+        return this._outerRadius;
+    },
+
+    setOuterRadius: function setOuterRadius() {
+        var radius = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 200;
+
+        this._outerRadius = Math.abs(radius);
         return this.redraw();
     },
 
@@ -170,12 +183,18 @@ L.Arc = L.Polyline.extend({
         var ptCount = angle * this.getNumberOfPoints() / 360;
         var latlngs = [];
         var deltaAngle = angle / ptCount;
+        //latlngs.push(this.getCenter())
 
         for (var i = 0; i < ptCount; i++) {
             var useAngle = this.getStartBearing() + deltaAngle * i;
-            latlngs.push(this.computeDestinationPoint(this.getCenter(), this.getRadius(), useAngle));
+            latlngs.push(this.computeDestinationPoint(this.getCenter(), this.getOuterRadius(), useAngle));
         }
-        latlngs.push(this.computeDestinationPoint(this.getCenter(), this.getRadius(), this.getEndBearing()));
+        latlngs.push(this.computeDestinationPoint(this.getCenter(), this.getOuterRadius(), this.getEndBearing()));
+        for (var i = 0; i < ptCount; i++) {
+            var _useAngle = this.getEndBearing() - deltaAngle * i;
+            latlngs.push(this.computeDestinationPoint(this.getCenter(), this.getInnerRadius(), _useAngle));
+        }
+        latlngs.push(this.computeDestinationPoint(this.getCenter(), this.getInnerRadius(), this.getStartBearing()));
         return latlngs;
     },
 
@@ -213,17 +232,19 @@ L.Arc = L.Polyline.extend({
     }
 });
 
-L.arc = function (_ref2) {
+L.sector = function (_ref2) {
     var _ref2$center = _ref2.center,
         center = _ref2$center === undefined ? [0, 0] : _ref2$center,
-        _ref2$radius = _ref2.radius,
-        radius = _ref2$radius === undefined ? 100 : _ref2$radius,
+        _ref2$innerRadius = _ref2.innerRadius,
+        innerRadius = _ref2$innerRadius === undefined ? 100 : _ref2$innerRadius,
+        _ref2$outerRadius = _ref2.outerRadius,
+        outerRadius = _ref2$outerRadius === undefined ? 200 : _ref2$outerRadius,
         _ref2$startBearing = _ref2.startBearing,
         startBearing = _ref2$startBearing === undefined ? 0 : _ref2$startBearing,
         _ref2$endBearing = _ref2.endBearing,
         endBearing = _ref2$endBearing === undefined ? 90 : _ref2$endBearing,
         _ref2$numberOfPoints = _ref2.numberOfPoints,
         numberOfPoints = _ref2$numberOfPoints === undefined ? 32 : _ref2$numberOfPoints,
-        options = objectWithoutProperties(_ref2, ['center', 'radius', 'startBearing', 'endBearing', 'numberOfPoints']);
-    return new L.Arc(_extends({ center: center, radius: radius, startBearing: startBearing, numberOfPoints: numberOfPoints, endBearing: endBearing }, options));
+        options = objectWithoutProperties(_ref2, ['center', 'innerRadius', 'outerRadius', 'startBearing', 'endBearing', 'numberOfPoints']);
+    return new L.Sector(_extends({ center: center, innerRadius: innerRadius, outerRadius: outerRadius, startBearing: startBearing, numberOfPoints: numberOfPoints, endBearing: endBearing }, options));
 };
