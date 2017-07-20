@@ -21,11 +21,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			color: '#ffff00',
 			weight: 5,
 			dashArray: '5, 10'
-		},
-		line2Options: {
-			color: '#FF69B4',
-			weight: 5,
-			dashArray: '5, 10'
 		}
 	},
 
@@ -36,9 +31,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
 		if (options && options.lineOptions) {
 			options.lineOptions = L.Util.extend({}, this.options.lineOptions, options.lineOptions)
 		}
-		if (options && options.line2Options) {
-			options.line2Options = L.Util.extend({}, this.options.line2Options, options.line2Options)
-		}
+
 		// Save the type so super can fire, need to do this as cannot do this.TYPE :(
 		this.type = L.Draw.Sector.TYPE
 
@@ -49,10 +42,11 @@ L.Draw.Sector = L.Draw.Feature.extend({
 
 	_drawShape: function (latlng) {
 		//if (this._map.hasLayer(this._line)) this._map.removeLayer(this._line)
-
+		let radius = Math.max(this._startLatLng.distanceTo(latlng), 10)
+		
 		if (!this._shape) {
 			
-			let radius = Math.max(this._startLatLng.distanceTo(latlng), 10)
+			
 
 			let pc = this._map.project(this._startLatLng)
 			let ph = this._map.project(latlng)
@@ -77,6 +71,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			let v = [ph.x - pc.x, ph.y - pc.y]
 
 			let endBearing = (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
+			this._shape.setOuterRadius(radius)
 			this._shape.setEndBearing(endBearing)
 			this._shape.setLatLngs(this._shape.getLatLngs())
 		}
@@ -92,22 +87,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 
 	},
 
-	_drawLine2: function (latlng) {
-		let innerLatLng = this._line.getLatLngs()[1]
-		let outerRadius = this._startLatLng.distanceTo(latlng)
-
-		if (!this._line2) {
-			this._line2 = L.polyline([innerLatLng, latlng, this.options.line2Options])
-			this._map.addLayer(this._line2)
-		} else {
-			let newlatlng = L.Sector.prototype.computeDestinationPoint(
-				this._startLatLng,
-				outerRadius,
-				this._startBearing
-			)
-			this._line2.setLatLngs([innerLatLng, newlatlng])
-		}
-	},
 	_fireCreatedEvent: function () {
 		let sector = L.sector({
 			...this.options.shapeOptions,
@@ -130,8 +109,8 @@ L.Draw.Sector = L.Draw.Feature.extend({
 		this._tooltip.updatePosition(latlng)
 
 		if (this._isDrawing) {
-			if (this._outerRadius) {
-				this._drawShape(latlng);
+			if (this._innerRadius) {
+				this._drawShape(latlng)
 				
 				let pc = this._map.project(this._startLatLng)
 				let ph = this._map.project(latlng)
@@ -142,10 +121,8 @@ L.Draw.Sector = L.Draw.Feature.extend({
 				this._tooltip.updateContent({
 					text: L.drawLocal.draw.handlers.sector.tooltip.end,
 					subtext: `Bearing(degrees): ${bearing}`
-				});
+				})
 
-			} else if (this._innerRadius) {
-				this._drawLine2(latlng)
 			} else {
 				let radius = this._startLatLng.distanceTo(latlng)
 				let pc = this._map.project(this._startLatLng)
@@ -182,10 +159,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			let newB = (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
 			this._startBearing = newB
 			this._innerRadius = this._startLatLng.distanceTo(latlng)
-		
-		} else if (!this._outerRadius) {
-			this._outerRadius = this._startLatLng.distanceTo(latlng)
-
 		} else {
 			let pc = this._map.project(this._startLatLng)
 			let ph = this._map.project(latlng)
@@ -261,10 +234,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			if (this._line) {
 				this._map.removeLayer(this._line)
 				delete this._line
-			}
-			if (this._line2) {
-				this._map.removeLayer(this._line2)
-				delete this._line2
 			}
 		}
 		this._isDrawing = false;

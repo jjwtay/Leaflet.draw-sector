@@ -35,11 +35,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			color: '#ffff00',
 			weight: 5,
 			dashArray: '5, 10'
-		},
-		line2Options: {
-			color: '#FF69B4',
-			weight: 5,
-			dashArray: '5, 10'
 		}
 	},
 
@@ -50,9 +45,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
 		if (options && options.lineOptions) {
 			options.lineOptions = L.Util.extend({}, this.options.lineOptions, options.lineOptions);
 		}
-		if (options && options.line2Options) {
-			options.line2Options = L.Util.extend({}, this.options.line2Options, options.line2Options);
-		}
+
 		// Save the type so super can fire, need to do this as cannot do this.TYPE :(
 		this.type = L.Draw.Sector.TYPE;
 
@@ -63,10 +56,9 @@ L.Draw.Sector = L.Draw.Feature.extend({
 
 	_drawShape: function _drawShape(latlng) {
 		//if (this._map.hasLayer(this._line)) this._map.removeLayer(this._line)
+		var radius = Math.max(this._startLatLng.distanceTo(latlng), 10);
 
 		if (!this._shape) {
-
-			var radius = Math.max(this._startLatLng.distanceTo(latlng), 10);
 
 			var pc = this._map.project(this._startLatLng);
 			var ph = this._map.project(latlng);
@@ -88,6 +80,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			var _v = [_ph.x - _pc.x, _ph.y - _pc.y];
 
 			var endBearing = Math.atan2(_v[0], -_v[1]) * 180 / Math.PI % 360;
+			this._shape.setOuterRadius(radius);
 			this._shape.setEndBearing(endBearing);
 			this._shape.setLatLngs(this._shape.getLatLngs());
 		}
@@ -102,18 +95,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 		}
 	},
 
-	_drawLine2: function _drawLine2(latlng) {
-		var innerLatLng = this._line.getLatLngs()[1];
-		var outerRadius = this._startLatLng.distanceTo(latlng);
-
-		if (!this._line2) {
-			this._line2 = L.polyline([innerLatLng, latlng, this.options.line2Options]);
-			this._map.addLayer(this._line2);
-		} else {
-			var newlatlng = L.Sector.prototype.computeDestinationPoint(this._startLatLng, outerRadius, this._startBearing);
-			this._line2.setLatLngs([innerLatLng, newlatlng]);
-		}
-	},
 	_fireCreatedEvent: function _fireCreatedEvent() {
 		var sector = L.sector(_extends({}, this.options.shapeOptions, {
 			center: this._startLatLng,
@@ -135,7 +116,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
 		this._tooltip.updatePosition(latlng);
 
 		if (this._isDrawing) {
-			if (this._outerRadius) {
+			if (this._innerRadius) {
 				this._drawShape(latlng);
 
 				var pc = this._map.project(this._startLatLng);
@@ -148,8 +129,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 					text: L.drawLocal.draw.handlers.sector.tooltip.end,
 					subtext: 'Bearing(degrees): ' + bearing
 				});
-			} else if (this._innerRadius) {
-				this._drawLine2(latlng);
 			} else {
 				var _radius = this._startLatLng.distanceTo(latlng);
 				var _pc2 = this._map.project(this._startLatLng);
@@ -186,8 +165,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			var newB = Math.atan2(v[0], -v[1]) * 180 / Math.PI % 360;
 			this._startBearing = newB;
 			this._innerRadius = this._startLatLng.distanceTo(latlng);
-		} else if (!this._outerRadius) {
-			this._outerRadius = this._startLatLng.distanceTo(latlng);
 		} else {
 			var _pc3 = this._map.project(this._startLatLng);
 			var _ph3 = this._map.project(latlng);
@@ -257,10 +234,6 @@ L.Draw.Sector = L.Draw.Feature.extend({
 			if (this._line) {
 				this._map.removeLayer(this._line);
 				delete this._line;
-			}
-			if (this._line2) {
-				this._map.removeLayer(this._line2);
-				delete this._line2;
 			}
 		}
 		this._isDrawing = false;
@@ -528,21 +501,8 @@ L.Edit.Sector = L.Edit.SimpleShape.extend({
 		var point = this._shape.computeDestinationPoint(center, this._shape.getOuterRadius() * 1.3, bearing);
 
 		this._rotateMarker.setLatLng(point);
-	},
-
-	_update: function _update() {
-		if (!this._map) {
-			return;
-		}
-
-		this._clipPoints();
-		this._simplifyPoints();
-		this._updatePath();
-	},
-
-	_updatePath: function _updatePath() {
-		this._renderer._updatePoly(this, true);
 	}
+
 });
 
 L.Sector.addInitHook(function () {
@@ -573,8 +533,7 @@ L.drawLocal.draw.handlers.sector = {
 	tooltip: {
 		start: 'Click to set Sector center.',
 		line: 'Click to set Inner Radius and Start Bearing.',
-		line2: 'Click to set OuterRadius.',
-		end: 'Click to set End Bearing and create Arc'
+		end: 'Click to set End Bearing, Outer Radius and create Sector'
 	},
 	radius: 'Radius (meters): ',
 	bearing: 'Bearing (degrees): '
