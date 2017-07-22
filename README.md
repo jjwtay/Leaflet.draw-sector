@@ -8,6 +8,23 @@ Leaflet.draw-sector requires
 + [Leaflet.draw 0.2.4](https://github.com/Leaflet/Leaflet.draw/releases/tag/v0.2.4) or higher
 + [leaflet.sector](https://github.com/jjwtay/leaflet.sector)
 
+## How to
+
+*Traditional*
+
+    Include Leaflet.draw.sector.js in your html
+
+    <script src='/path/to/Leaflet.draw-sector.js'></script>
+
+*Webpack as non es6 module*
+
+    import './path/to/Leaflet.draw-sector'
+
+
+*ES6 module*
+
+    TODO
+
 ## Usage
 
 See [Leaflet.draw](https://github.com/Leaflet/Leaflet.draw#using) and [leaflet.sector](https://github.com/jjwtay/leaflet.sector).
