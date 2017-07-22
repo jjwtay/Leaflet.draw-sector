@@ -14,10 +14,12 @@ Leaflet.draw-sector requires
 
     Include Leaflet.draw.sector.js in your html
 
+    <script src='/path/to/leaflet.sector></script>
     <script src='/path/to/Leaflet.draw-sector.js'></script>
 
 *Webpack as non es6 module*
 
+    import './path/to/leaflet.sector'
     import './path/to/Leaflet.draw-sector'
 
 
