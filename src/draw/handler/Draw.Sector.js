@@ -24,7 +24,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
         }
     },
 
-    initialize: function (map, options) {
+    initialize (map, options) {
         if (options && options.shapeOptions) {
             options.shapeOptions = L.Util.extend({}, this.options.shapeOptions, options.shapeOptions)
         }
@@ -40,13 +40,14 @@ L.Draw.Sector = L.Draw.Feature.extend({
         L.Draw.Feature.prototype.initialize.call(this, map, options)
     },
 
-    _drawShape: function (latlng) {
+    _drawShape (latlng) {
         //if (this._map.hasLayer(this._line)) this._map.removeLayer(this._line)
-        let radius = Math.max(this._startLatLng.distanceTo(latlng), 10),
-            pc, ph, v, startBearing, endBearing
-		
+        const radius = Math.max(this._startLatLng.distanceTo(latlng), 10)
+
+        let pc, ph, v, startBearing, endBearing
+
         if (!this._shape) {
-			
+
             pc = this._map.project(this._startLatLng)
             ph = this._map.project(latlng)
             v = [ph.x - pc.x, ph.y - pc.y]
@@ -68,14 +69,14 @@ L.Draw.Sector = L.Draw.Feature.extend({
             v = [ph.x - pc.x, ph.y - pc.y]
 
             endBearing = (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
-            
+
             this._shape.setOuterRadius(radius)
             this._shape.setEndBearing(endBearing)
             this._shape.setLatLngs(this._shape.getLatLngs())
         }
     },
 
-    _drawLine: function (latlng) {
+    _drawLine (latlng) {
         if (!this._line) {
             this._line = L.polyline([this._startLatLng, latlng], this.options.lineOptions)
             this._map.addLayer(this._line)
@@ -85,8 +86,8 @@ L.Draw.Sector = L.Draw.Feature.extend({
 
     },
 
-    _fireCreatedEvent: function () {
-        let sector = L.sector({
+    _fireCreatedEvent () {
+        const sector = L.sector({
             ...this.options.shapeOptions,
             center: this._startLatLng,
             innerRadius: this._shape.getInnerRadius(),
@@ -98,19 +99,20 @@ L.Draw.Sector = L.Draw.Feature.extend({
         L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this, sector)
     },
 
-    _onMouseMove: function (e) {
-        var latlng = e.latlng,
-            radius, pc, ph, v, bearing
+    _onMouseMove (e) {
+        const latlng = e.latlng
+
+        let radius, pc, ph, v, bearing
 
         this._tooltip.updatePosition(latlng)
 
         if (this._isDrawing) {
             if (this._innerRadius) {
                 this._drawShape(latlng)
-				
+
                 pc = this._map.project(this._startLatLng)
                 ph = this._map.project(latlng)
-				
+
                 v = [ph.x - pc.x, ph.y - pc.y]
 
                 bearing = (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
@@ -137,12 +139,12 @@ L.Draw.Sector = L.Draw.Feature.extend({
         }
     },
 
-    _onMouseDown: function (e) {
-        let latlng = e.latlng,
+    _onMouseDown (e) {
+        const latlng = e.latlng,
             pc = this._map.project(this._startLatLng),
             ph = this._map.project(latlng),
             v = [ph.x - pc.x, ph.y - pc.y],
-            newB = newB = (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
+            newB = (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
 
         this._isDrawing = true
 
@@ -161,12 +163,12 @@ L.Draw.Sector = L.Draw.Feature.extend({
         }
     },
 
-    _onMouseUp: function (e) {
+    _onMouseUp (e) {
         if (this._endBearing) {
             this._fireCreatedEvent(e)
-			
+
             this.disable()
-			
+
             if (this.options.repeatMode) {
                 this.enable()
             }
@@ -174,7 +176,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
     },
     // @method addHooks(): void
     // Add listener hooks to this handler.
-    addHooks: function () {
+    addHooks () {
         L.Draw.Feature.prototype.addHooks.call(this)
         if (this._map) {
             this._mapDraggable = this._map.dragging.enabled()
@@ -198,7 +200,7 @@ L.Draw.Sector = L.Draw.Feature.extend({
     },
     // @method removeHooks(): void
     // Remove listener hooks from this handler.
-    removeHooks: function () {
+    removeHooks () {
         //L.Draw.Feature.prototype.removeHooks.call(this);
         if (this._map) {
             if (this._mapDraggable) {
