@@ -139,12 +139,15 @@ L.Draw.Sector = L.Draw.Feature.extend({
         }
     },
 
+    _calcNewB (latlng) {
+        const pc = this._map.project(this._startLatLng)
+        const ph = this._map.project(latlng)
+        const v = [ph.x - pc.x, ph.y - pc.y]
+        return (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
+    },
+
     _onMouseDown (e) {
-        const latlng = e.latlng,
-            pc = this._map.project(this._startLatLng),
-            ph = this._map.project(latlng),
-            v = [ph.x - pc.x, ph.y - pc.y],
-            newB = (Math.atan2(v[0], -v[1]) * 180 / Math.PI) % 360
+        const latlng = e.latlng
 
         this._isDrawing = true
 
@@ -156,10 +159,10 @@ L.Draw.Sector = L.Draw.Feature.extend({
 				.on(document, 'touchend', this._onMouseUp, this)
 				.preventDefault(e.originalEvent);*/
         } else if (!this._innerRadius) {
-            this._startBearing = newB
+            this._startBearing = this._calcNewB(latlng)
             this._innerRadius = this._startLatLng.distanceTo(latlng)
         } else {
-            this._endBearing = newB
+            this._endBearing = this._calcNewB(latlng)
         }
     },
 
