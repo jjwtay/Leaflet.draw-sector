@@ -1,6 +1,6 @@
 {
   "name": "leaflet.draw-sector",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Leaflet Draw inspired handlers for leaflet.sector",
   "main": "Leaflet.draw-sector.js",
   "scripts": {

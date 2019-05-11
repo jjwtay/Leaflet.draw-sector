@@ -318,7 +318,11 @@ L.Sector.addInitHook(function () {
     })
 
     this.on('remove', function () {
-        if (this.editing && this.editing.enabled()) {
+        /** Note: needed to addd check for _resizeMarkers due to
+         *  odd behavior when used in react-leaflet and removing map
+         *  while editing is enabled.
+         */
+        if (this.editing && this.editing.enabled() && this.editing._resizeMarkers) {
             this.editing.removeHooks()
         }
     })
